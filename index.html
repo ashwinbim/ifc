@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>IFC Web Viewer</title>
+  <style>
+    #viewer {
+      width: 100%;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <h1>IFC Web Viewer</h1>
+  
+  <input type="file" id="fileInput" accept=".ifc">
+  
+  <div id="viewer"></div>
+  
+  <h2>Properties</h2>
+  <ul id="propertyList"></ul>
+  
+  <h2>Controls</h2>
+  <button id="moveBtn">Move</button>
+  <button id="rotateBtn">Rotate</button>
+  <button id="isolateBtn">Isolate</button>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ifcjs/1.0.13/ifc.min.js"></script>
+  <script>
+    const viewerDiv = document.getElementById('viewer');
+    const propertyList = document.getElementById('propertyList');
+    const moveBtn = document.getElementById('moveBtn');
+    const rotateBtn = document.getElementById('rotateBtn');
+    const isolateBtn = document.getElementById('isolateBtn');
+
+    let ifcViewer;
+
+    function loadIFCFile(file) {
+      ifcViewer = new IFCViewer(viewerDiv);
+      ifcViewer.load(file, () => {
+        // IFC file loaded successfully
+        updatePropertyList();
+      });
+    }
+
+    function updatePropertyList() {
+      propertyList.innerHTML = '';
+      const ifcObjects = ifcViewer.getObjects();
+      if (ifcObjects) {
+        for (const object of ifcObjects) {
+          const properties = object.getProperties();
+          for (const property in properties) {
+            const li = document.createElement('li');
+            li.textContent = `${property}: ${properties[property]}`;
+            propertyList.appendChild(li);
+          }
+        }
+      }
+    }
+
+    function handleMoveButtonClick() {
+      ifcViewer.enableMoveMode();
+    }
+
+    function handleRotateButtonClick() {
+      ifcViewer.enableRotateMode();
+    }
+
+    function handleIsolateButtonClick() {
+      ifcViewer.isolateSelected();
+    }
+
+    const fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        loadIFCFile(file);
+      }
+    });
+
+    moveBtn.addEventListener('click', handleMoveButtonClick);
+    rotateBtn.addEventListener('click', handleRotateButtonClick);
+    isolateBtn.addEventListener('click', handleIsolateButtonClick);
+  </script>
+</body>
+</html>
